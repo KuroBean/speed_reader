@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    #inputText {
+      height: 100px;
+      width: 500px;
+      font-size: 18px;
+      overflow: auto;
+      white-space: pre-wrap;
+    }
+    #output {
+      font-size: 200px;
+    }
+    #cumulativeOutput {
+      margin-top: 20px;
+      font-size: 20px;
+    }
+  </style>
+</head>
+<body>
+  <textarea id="inputText" placeholder="Enter text"></textarea>
+  <br>
+  <button id="playButton">Play</button>
+  <div id="output"></div>
+  <div id="cumulativeOutput"></div>
+
+  <script>
+    function displayWordsWithBoldSyllables() {
+      var inputText = document.getElementById("inputText").value;
+      var outputDiv = document.getElementById("output");
+      var cumulativeOutputDiv = document.getElementById("cumulativeOutput");
+      outputDiv.innerHTML = "";
+
+      var words = inputText.split(" ");
+      var index = 0;
+      var cumulativeText = "";
+      var pauseKeys = [".", ",", ";", ":"];
+    
+
+      function displayNextWord() {
+        if (index >= words.length) {
+          clearInterval(interval);
+          return;
+        }
+
+        var word = words[index];
+        var firstSyllable = getFirstSyllable(word);
+        var boldSyllable = "<b>" + firstSyllable + "</b>";
+        var remainingLetters = word.substr(firstSyllable.length);
+        var formattedWord = boldSyllable + remainingLetters;
+
+        outputDiv.innerHTML = formattedWord;
+        cumulativeText += formattedWord + " ";
+        cumulativeOutputDiv.innerHTML = cumulativeText;
+
+        index++;
+
+        if (pauseKeys.includes(word.charAt(word.length - 1))) {
+          setTimeout(displayNextWord, 1000);
+        } else {
+          setTimeout(displayNextWord, 200);
+        }
+      }
+
+      displayNextWord();
+    }
+
+    function getFirstSyllable(word) {
+      var vowels = ["a", "e", "i", "o", "u", "y"];
+      var firstSyllable = "";
+
+      for (var i = 0; i < word.length; i++) {
+        if (vowels.includes(word[i])) {
+          firstSyllable = word.substr(0, i + 1);
+          break;
+        }
+      }
+
+      return firstSyllable;
+    }
+
+    var playButton = document.getElementById("playButton");
+    playButton.addEventListener("click", displayWordsWithBoldSyllables);
+  </script>
+</body>
+</html>
