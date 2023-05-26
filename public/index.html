@@ -22,48 +22,64 @@
   <textarea id="inputText" placeholder="Enter text"></textarea>
   <br>
   <button id="playButton">Play</button>
+  <button id="pauseButton">Pause</button>
+  <button id="resumeButton">Resume</button>
   <div id="output"></div>
   <div id="cumulativeOutput"></div>
 
   <script>
+    var words = [];
+    var index = 0;
+    var cumulativeText = "";
+    var timeoutId;
+    var pauseKeys = [".", ",", ";", ":"];
+    var pauseTimeForKeys=500
+    var regularPauseTime=200;
+    var timeInterval;
+
     function displayWordsWithBoldSyllables() {
       var inputText = document.getElementById("inputText").value;
+      words = inputText.split(" ");
+      index = 0;
+      cumulativeText = "";
+
       var outputDiv = document.getElementById("output");
       var cumulativeOutputDiv = document.getElementById("cumulativeOutput");
       outputDiv.innerHTML = "";
+      cumulativeOutputDiv.innerHTML = "";
 
-      var words = inputText.split(" ");
-      var index = 0;
-      var cumulativeText = "";
-      var pauseKeys = [".", ",", ";", ":"];
-    
+      clearTimeout(timeoutId);
+      
+      displayNextWord();
+      
+    }
 
-      function displayNextWord() {
-        if (index >= words.length) {
-          clearInterval(interval);
-          return;
-        }
-
-        var word = words[index];
-        var firstSyllable = getFirstSyllable(word);
-        var boldSyllable = "<b>" + firstSyllable + "</b>";
-        var remainingLetters = word.substr(firstSyllable.length);
-        var formattedWord = boldSyllable + remainingLetters;
-
-        outputDiv.innerHTML = formattedWord;
-        cumulativeText += formattedWord + " ";
-        cumulativeOutputDiv.innerHTML = cumulativeText;
-
-        index++;
-
-        if (pauseKeys.includes(word.charAt(word.length - 1))) {
-          setTimeout(displayNextWord, 1000);
-        } else {
-          setTimeout(displayNextWord, 200);
-        }
+    function displayNextWord() {
+      if (index >= words.length) {
+        return;
       }
 
-      displayNextWord();
+      var word = words[index];
+      var firstSyllable = getFirstSyllable(word);
+      var boldSyllable = "<b>" + firstSyllable + "</b>";
+      var remainingLetters = word.substr(firstSyllable.length);
+      var formattedWord = boldSyllable + remainingLetters;
+
+      var outputDiv = document.getElementById("output");
+      var cumulativeOutputDiv = document.getElementById("cumulativeOutput");
+      outputDiv.innerHTML = formattedWord;
+      cumulativeText += formattedWord + " ";
+      cumulativeOutputDiv.innerHTML = cumulativeText;
+
+      index++;
+
+      if (pauseKeys.includes(word.charAt(word.length - 1))) {
+        timeInterval = pauseTimeForKeys;
+      } else {
+        timeInterval = regularPauseTime;
+      }
+
+      timeoutId = setTimeout(displayNextWord, timeInterval);
     }
 
     function getFirstSyllable(word) {
@@ -80,8 +96,23 @@
       return firstSyllable;
     }
 
+    function pauseAnimation() {
+      clearTimeout(timeoutId);
+    }
+
+    function resumeAnimation() {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(displayNextWord, timeInterval);
+    }
+
     var playButton = document.getElementById("playButton");
     playButton.addEventListener("click", displayWordsWithBoldSyllables);
+
+    var pauseButton = document.getElementById("pauseButton");
+    pauseButton.addEventListener("click", pauseAnimation);
+
+    var resumeButton = document.getElementById("resumeButton");
+    resumeButton.addEventListener("click", resumeAnimation);
   </script>
 </body>
 </html>
